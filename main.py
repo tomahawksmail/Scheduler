@@ -3,7 +3,6 @@ import re
 import os
 from dotenv import load_dotenv
 import pymysql
-
 import const
 
 load_dotenv()
@@ -19,11 +18,7 @@ host = "USKO-ittest"
 reg_file = const.reg_file
 bat_file = const.bat_file
 # get schedule tasks
-command1 = r'schtasks /query /tn "\UskoInc\1"'
-command2 = r'schtasks /query /tn "\UskoInc\2"'
-command3 = r'schtasks /query /tn "\UskoInc\3"'
-command4 = r'schtasks /query /tn "\UskoInc\4"'
-command = [command1, command2, command3, command4]
+
 
 
 blackusers = ['NTUSER.DAT', 'Public', 'cpeter', 'Guest', 'DefaultAccount', 'skhashimi', 'mtsybulskyi',
@@ -81,7 +76,7 @@ def ApplyREGFile(getWhiteUsers):
 
 ApplyREGFile(getWhiteUsers)
 
-for c in command:
+for c in const.command:
     try:
         _stdin, _stdout, _stderr = client.exec_command(c)
         out = _stdout.read().decode()
@@ -100,6 +95,23 @@ for c in command:
 client.close()
 
 
+def main():
+    SQLrequestSelect = """SELECT * from computerlist"""
+    try:
+        connection.connect()
+    except Exception as E:
+        print(E)
+    else:
+        with connection.cursor() as cursor:
+            cursor.execute(SQLrequestSelect)
+        result = cursor.fetchall()
+    for host in result:
+        print(host[0])
+    cursor.close()
+    connection.close()
+
 # delete schedule tasks
 #schtasks /end /tn "\UskoInc\1"
 #schtasks /delete /tn "\UskoInc\1" /f
+
+main()

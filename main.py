@@ -3,7 +3,6 @@ import re
 import os
 from dotenv import load_dotenv
 import pymysql
-
 import const
 
 load_dotenv()
@@ -30,7 +29,7 @@ const.blackusers.append(re.compile(r'QBDataServiceUser').match(r'dir /b C:\Users
 # copy GPO bat file
 client.exec_command(
     r"xcopy \\shots11\tools\sendmetrics\send_logoff.bat C:\WINDOWS\System32\GroupPolicy\User\Scripts\Logoff\ ")
-print(client.exec_command(r"getmac"))
+
 
 
 # get real local users from host
@@ -99,6 +98,7 @@ def main():
         with connection.cursor() as cursor:
             cursor.execute(SQLrequestSelect)
         result = cursor.fetchall()
+
     for host in result:
         print(host[0])
     cursor.close()

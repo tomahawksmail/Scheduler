@@ -4,6 +4,8 @@ import os
 from dotenv import load_dotenv
 import pymysql
 
+import const
+
 load_dotenv()
 
 connection = pymysql.connect(host=os.environ.get('DBHOST'),
@@ -14,8 +16,8 @@ connection = pymysql.connect(host=os.environ.get('DBHOST'),
 
 # env
 host = "USKO-ittest"
-reg_file = "\\\\shots11\\tools\\sendmetrics\\gpologoff.reg"
-bat_file = "C:\\WINDOWS\\System32\\GroupPolicy\\User\\Scripts\\Logoff\\"
+reg_file = const.reg_file
+bat_file = const.bat_file
 # get schedule tasks
 command1 = r'schtasks /query /tn "\UskoInc\1"'
 command2 = r'schtasks /query /tn "\UskoInc\2"'
@@ -55,16 +57,23 @@ def ApplyREGFile(getWhiteUsers):
         client.exec_command(f'reg import {reg_file}')
         client.exec_command('reg unload HKU\\Usko')
 
-        SQLrequest = """SELECT * from metricsStatus where hostname = %s and username = %s"""
+        SQLrequestSelect = """SELECT * from metricsStatus where hostname = %s and username = %s"""
+        SQLrequestInsert = """INSERT INTO metricsStatus (`hostname`, `username`, `task1stamp`,
+                                                        `task2stamp`, `task3stamp`, `task4stamp` ) VALUES (
+										                         %s, %s, NOW(), NOW(), NOW(), NOW()) """
         try:
             connection.connect()
         except Exception as E:
             print(E)
         else:
             with connection.cursor() as cursor:
-                cursor.execute(SQLrequest, (host, user))
-            result = cursor.fetchall()
-            print(result)
+                cursor.execute(SQLrequestSelect, (host, user))
+            result = cursor.fetchone()
+            if result is None:
+                with connection.cursor() as cursor:
+                    cursor.execute(SQLrequestInsert, (host, user))
+                connection.commit()
+
             cursor.close()
             connection.close()
 
@@ -72,18 +81,18 @@ def ApplyREGFile(getWhiteUsers):
 
 ApplyREGFile(getWhiteUsers)
 
-# for c in command:
-#     try:
-#         _stdin, _stdout, _stderr = client.exec_command(c)
-#         out = _stdout.read().decode()
-#     except Exception as E:
-#         print(E)
-#     else:
-#         if out == '':
-#             print(f'Create and enable schedule task {c[-2]}')
-#             client.exec_command(f'schtasks /create /xml "\\\\shots11\\tools\\sendmetrics\\{c[-2]}.xml" /tn "\\UskoInc\\{c[-2]}"')
-#         else:
-#             print("Scheduled yet")
+for c in command:
+    try:
+        _stdin, _stdout, _stderr = client.exec_command(c)
+        out = _stdout.read().decode()
+    except Exception as E:
+        print(E)
+    else:
+        if out == '':
+            print(f'Create and enable schedule task {c[-2]}')
+            client.exec_command(f'schtasks /create /xml "\\\\shots11\\tools\\sendmetrics\\{c[-2]}.xml" /tn "\\UskoInc\\{c[-2]}"')
+        else:
+            print("Scheduled yet")
 
 
 

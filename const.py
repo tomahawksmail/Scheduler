@@ -6,3 +6,7 @@ command1 = r'schtasks /query /tn "\UskoInc\1"'
 command2 = r'schtasks /query /tn "\UskoInc\2"'
 command3 = r'schtasks /query /tn "\UskoInc\3"'
 command = [command1, command2, command3]
+
+blackusers = ['NTUSER.DAT', 'Public', 'cpeter', 'Guest', 'DefaultAccount', 'skhashimi', 'mtsybulskyi',
+              'Admin', 'Administrator', 'admin', 'sshd', 'DefaultAccount', 'WDAGUtilityAccount', 'QBPOSDBSrvUser',
+              'WDAGUtilityAccount', 'DevToolsUser']

@@ -3,6 +3,7 @@ import re
 import os
 from dotenv import load_dotenv
 import pymysql
+
 import const
 
 load_dotenv()
@@ -12,7 +13,6 @@ connection = pymysql.connect(host=os.environ.get('DBHOST'),
                              password=os.environ.get('DBPASSWORD'),
                              database=os.environ.get('DATABASE'))
 
-
 # env
 host = "USKO-ittest"
 reg_file = const.reg_file
@@ -20,31 +20,28 @@ bat_file = const.bat_file
 # get schedule tasks
 
 
-
-blackusers = ['NTUSER.DAT', 'Public', 'cpeter', 'Guest', 'DefaultAccount', 'skhashimi', 'mtsybulskyi',
-              'Admin', 'Administrator', 'admin', 'sshd', 'DefaultAccount', 'WDAGUtilityAccount', 'QBPOSDBSrvUser',
-              'WDAGUtilityAccount', 'DevToolsUser']
-
-
 client = paramiko.client.SSHClient()
 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 client.connect(host, username=os.environ.get('USER'), password=os.environ.get('PASSWORD'))
 
 # append QB system users to filter their
-blackusers.append(re.compile(r'QBDataServiceUser').match(r'dir /b C:\Users'))
+const.blackusers.append(re.compile(r'QBDataServiceUser').match(r'dir /b C:\Users'))
 
 # copy GPO bat file
-client.exec_command(r"xcopy \\shots11\tools\sendmetrics\send_logoff.bat C:\WINDOWS\System32\GroupPolicy\User\Scripts\Logoff\ ")
+client.exec_command(
+    r"xcopy \\shots11\tools\sendmetrics\send_logoff.bat C:\WINDOWS\System32\GroupPolicy\User\Scripts\Logoff\ ")
+print(client.exec_command(r"getmac"))
+
 
 # get real local users from host
 def getWhiteUsers():
     _stdin, _stdout, _stderr = client.exec_command(r'dir /b C:\Users')
-    userlist = [x for x in _stdout.read().decode().splitlines() if x not in blackusers]
+    userlist = [x for x in _stdout.read().decode().splitlines() if x not in const.blackusers]
     return userlist
+
 
 # apply reg-file for each user
 def ApplyREGFile(getWhiteUsers):
-
     for user in getWhiteUsers():
         path = f"C:\\Users\\{user}\\NTUSER.DAT"
 
@@ -73,7 +70,6 @@ def ApplyREGFile(getWhiteUsers):
             connection.close()
 
 
-
 ApplyREGFile(getWhiteUsers)
 
 for c in const.command:
@@ -85,12 +81,10 @@ for c in const.command:
     else:
         if out == '':
             print(f'Create and enable schedule task {c[-2]}')
-            client.exec_command(f'schtasks /create /xml "\\\\shots11\\tools\\sendmetrics\\{c[-2]}.xml" /tn "\\UskoInc\\{c[-2]}"')
+            client.exec_command(
+                f'schtasks /create /xml "\\\\shots11\\tools\\sendmetrics\\{c[-2]}.xml" /tn "\\UskoInc\\{c[-2]}"')
         else:
             print("Scheduled yet")
-
-
-
 
 client.close()
 
@@ -110,8 +104,11 @@ def main():
     cursor.close()
     connection.close()
 
-# delete schedule tasks
-#schtasks /end /tn "\UskoInc\1"
-#schtasks /delete /tn "\UskoInc\1" /f
 
-main()
+# delete schedule tasks
+# schtasks /end /tn "\UskoInc\1"
+# schtasks /delete /tn "\UskoInc\1" /f
+
+
+if __name__ == "__main__":
+    main()

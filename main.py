@@ -43,7 +43,6 @@ client.exec_command(r"xcopy \\shots11\tools\sendmetrics\send_logoff.bat C:\WINDO
 def getWhiteUsers():
     _stdin, _stdout, _stderr = client.exec_command(r'dir /b C:\Users')
     userlist = [x for x in _stdout.read().decode().splitlines() if x not in blackusers]
-    print(userlist)
     return userlist
 
 # apply reg-file for each user
@@ -56,14 +55,14 @@ def ApplyREGFile(getWhiteUsers):
         client.exec_command(f'reg import {reg_file}')
         client.exec_command('reg unload HKU\\Usko')
 
-        SQLrequest = """SELECT * from metricsStatus"""
+        SQLrequest = """SELECT * from metricsStatus where hostname = %s and username = %s"""
         try:
             connection.connect()
         except Exception as E:
             print(E)
         else:
             with connection.cursor() as cursor:
-                cursor.execute(SQLrequest)
+                cursor.execute(SQLrequest, (host, user))
             result = cursor.fetchall()
             print(result)
             cursor.close()
@@ -73,21 +72,20 @@ def ApplyREGFile(getWhiteUsers):
 
 ApplyREGFile(getWhiteUsers)
 
+# for c in command:
+#     try:
+#         _stdin, _stdout, _stderr = client.exec_command(c)
+#         out = _stdout.read().decode()
+#     except Exception as E:
+#         print(E)
+#     else:
+#         if out == '':
+#             print(f'Create and enable schedule task {c[-2]}')
+#             client.exec_command(f'schtasks /create /xml "\\\\shots11\\tools\\sendmetrics\\{c[-2]}.xml" /tn "\\UskoInc\\{c[-2]}"')
+#         else:
+#             print("Scheduled yet")
 
 
-
-for c in command:
-    try:
-        _stdin, _stdout, _stderr = client.exec_command(c)
-        out = _stdout.read().decode()
-    except Exception as E:
-        print(E)
-    else:
-        if out == '':
-            print(f'Create and enable schedule task {c[-2]}')
-            client.exec_command(f'schtasks /create /xml "\\\\shots11\\tools\\sendmetrics\\{c[-2]}.xml" /tn "\\UskoInc\\{c[-2]}"')
-        else:
-            print("Scheduled yet")
 
 
 client.close()

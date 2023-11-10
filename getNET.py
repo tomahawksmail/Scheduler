@@ -1,13 +1,26 @@
-import psutil
+import socket
+import getmac
 
+def get_remote_mac(hostname):
+    try:
+        ip_address = socket.gethostbyname(hostname)
+        mac_address = getmac.get_mac_address(ip=ip_address)
+        return mac_address, ip_address
+    except socket.error as e:
+        print(f"Error: {e}")
+        return None
+    except getmac.GetMacError as e:
+        print(f"Error: {e}")
+        return None
 
-def list_eth_connections():
-    interfaces = psutil.net_if_stats()
+def main():
+    hostname = "Usko-1125"
+    mac_address, ip = get_remote_mac(hostname)
 
-    eth_connections = [interface for interface, stats in interfaces.items() if 'Ethernet' in interface]
+    if mac_address:
+        print(f"{hostname} - {mac_address} - {ip}")
+    else:
+        print(f"Failed to retrieve MAC address for {hostname}.")
 
-    return eth_connections
-
-
-eth_connections = list_eth_connections()
-print("Ethernet Connections:", eth_connections)
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,15 @@
 import socket
 import getmac
+import os
+from dotenv import load_dotenv
+import pymysql
 
+load_dotenv()
+
+connection = pymysql.connect(host=os.environ.get('DBHOST'),
+                             user=os.environ.get('DBUSER'),
+                             password=os.environ.get('DBPASSWORD'),
+                             database=os.environ.get('DATABASE'))
 def get_remote_mac(hostname):
     try:
         ip_address = socket.gethostbyname(hostname)
@@ -14,13 +23,27 @@ def get_remote_mac(hostname):
         return None
 
 def main():
-    hostname = "Usko-1125"
-    mac_address, ip = get_remote_mac(hostname)
-
-    if mac_address:
-        print(f"{hostname} - {mac_address} - {ip}")
+    SQLrequestSelect = """SELECT * from computerlist"""
+    try:
+        connection.connect()
+    except Exception as E:
+        print(E)
     else:
-        print(f"Failed to retrieve MAC address for {hostname}.")
+        with connection.cursor() as cursor:
+            cursor.execute(SQLrequestSelect)
+        result = cursor.fetchall()
+
+    for host in result:
+        hostname = host[0]
+        try:
+            mac_address, ip = get_remote_mac(hostname)
+        except Exception as E:
+            print(E)
+
+        if mac_address:
+            print(f"{hostname} - {mac_address} - {ip}")
+        else:
+            print(f"Failed to retrieve MAC address for {hostname}.")
 
 if __name__ == "__main__":
     main()

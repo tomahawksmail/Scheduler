@@ -21,14 +21,14 @@ bat_file = const.bat_file
 
 client = paramiko.client.SSHClient()
 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-client.connect(host, username=os.environ.get('USER'), password=os.environ.get('PASSWORD'))
+# client.connect(host, username=os.environ.get('USER'), password=os.environ.get('PASSWORD'))
 
 # append QB system users to filter their
-const.blackusers.append(re.compile(r'QBDataServiceUser').match(r'dir /b C:\Users'))
+# const.blackusers.append(re.compile(r'QBDataServiceUser').match(r'dir /b C:\Users'))
 
 # copy GPO bat file
-client.exec_command(
-    r"xcopy \\shots11\tools\sendmetrics\send_logoff.bat C:\WINDOWS\System32\GroupPolicy\User\Scripts\Logoff\ ")
+# client.exec_command(
+#     r"xcopy \\shots11\tools\sendmetrics\send_logoff.bat C:\WINDOWS\System32\GroupPolicy\User\Scripts\Logoff\ ")
 
 
 
@@ -69,27 +69,8 @@ def ApplyREGFile(getWhiteUsers):
             connection.close()
 
 
-ApplyREGFile(getWhiteUsers)
-
-for c in const.command:
-    try:
-        _stdin, _stdout, _stderr = client.exec_command(c)
-        out = _stdout.read().decode()
-    except Exception as E:
-        print(E)
-    else:
-        if out == '':
-            print(f'Create and enable schedule task {c[-2]}')
-            client.exec_command(
-                f'schtasks /create /xml "\\\\shots11\\tools\\sendmetrics\\{c[-2]}.xml" /tn "\\UskoInc\\{c[-2]}"')
-        else:
-            print("Scheduled yet")
-
-client.close()
-
-
 def main():
-    SQLrequestSelect = """SELECT * from computerlist WHERE `check` = 0"""
+    SQLrequestSelect = """SELECT node from computerlist WHERE `check` = 1"""
     try:
         connection.connect()
     except Exception as E:
@@ -98,14 +79,35 @@ def main():
         with connection.cursor() as cursor:
             cursor.execute(SQLrequestSelect)
         result = cursor.fetchall()
+        cursor.close()
+        connection.close()
 
     for host in result:
-        print(host[0])
+        client.connect(host[0], username=os.environ.get('USER'), password=os.environ.get('PASSWORD'))
 
+        # append QB system users to filter their
+        const.blackusers.append(re.compile(r'QBDataServiceUser').match(r'dir /b C:\Users'))
 
+        # copy GPO bat file
+        client.exec_command(
+            r"xcopy \\shots11\tools\sendmetrics\send_logoff.bat C:\WINDOWS\System32\GroupPolicy\User\Scripts\Logoff\ ")
 
-    cursor.close()
-    connection.close()
+        ApplyREGFile(getWhiteUsers)
+
+        for c in const.command:
+            try:
+                _stdin, _stdout, _stderr = client.exec_command(c)
+                out = _stdout.read().decode()
+            except Exception as E:
+                print(E)
+            else:
+                if out == '':
+                    print(f'Create and enable schedule task {c[-2]}')
+                    client.exec_command(
+                        f'schtasks /create /xml "\\\\shots11\\tools\\sendmetrics\\{c[-2]}.xml" /tn "\\UskoInc\\{c[-2]}"')
+                else:
+                    print("Scheduled yet")
+
 
 
 # delete schedule tasks

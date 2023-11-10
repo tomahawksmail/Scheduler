@@ -89,7 +89,7 @@ client.close()
 
 
 def main():
-    SQLrequestSelect = """SELECT * from computerlist"""
+    SQLrequestSelect = """SELECT * from computerlist WHERE `check` = 0"""
     try:
         connection.connect()
     except Exception as E:
@@ -101,6 +101,9 @@ def main():
 
     for host in result:
         print(host[0])
+
+
+
     cursor.close()
     connection.close()
 

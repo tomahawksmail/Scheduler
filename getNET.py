@@ -18,7 +18,7 @@ def get_remote_mac(hostname):
     except socket.error as e:
         print(f"Error: {e}")
         return None
-    except getmac.GetMacError as e:
+    except Exception as e:
         print(f"Error: {e}")
         return None
 

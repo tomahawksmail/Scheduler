@@ -16,31 +16,21 @@ connection = pymysql.connect(host=os.environ.get('DBHOST'),
 host = "USKO-ittest"
 reg_file = const.reg_file
 bat_file = const.bat_file
-# get schedule tasks
-
 
 client = paramiko.client.SSHClient()
 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-# client.connect(host, username=os.environ.get('USER'), password=os.environ.get('PASSWORD'))
-
-# append QB system users to filter their
-# const.blackusers.append(re.compile(r'QBDataServiceUser').match(r'dir /b C:\Users'))
-
-# copy GPO bat file
-# client.exec_command(
-#     r"xcopy \\shots11\tools\sendmetrics\send_logoff.bat C:\WINDOWS\System32\GroupPolicy\User\Scripts\Logoff\ ")
 
 
-
-# get real local users from host
 def getWhiteUsers():
+    """get real local users from host"""
     _stdin, _stdout, _stderr = client.exec_command(r'dir /b C:\Users')
     userlist = [x for x in _stdout.read().decode().splitlines() if x not in const.blackusers]
     return userlist
 
 
-# apply reg-file for each user
+
 def ApplyREGFile(getWhiteUsers):
+    """apply reg-file for each user"""
     for user in getWhiteUsers():
         path = f"C:\\Users\\{user}\\NTUSER.DAT"
 

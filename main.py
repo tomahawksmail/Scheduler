@@ -13,7 +13,6 @@ connection = pymysql.connect(host=os.environ.get('DBHOST'),
                              database=os.environ.get('DATABASE'))
 
 # env
-host = "USKO-ittest"
 reg_file = const.reg_file
 bat_file = const.bat_file
 

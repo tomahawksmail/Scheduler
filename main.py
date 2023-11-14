@@ -13,6 +13,7 @@ connection = pymysql.connect(host=os.environ.get('DBHOST'),
                              database=os.environ.get('DATABASE'))
 
 # env
+
 reg_file = const.reg_file
 bat_file = const.bat_file
 
@@ -28,7 +29,7 @@ def getWhiteUsers():
 
 
 
-def ApplyREGFile(getWhiteUsers):
+def ApplyREGFile(getWhiteUsers, host):
     """apply reg-file for each user"""
     for user in getWhiteUsers():
         path = f"C:\\Users\\{user}\\NTUSER.DAT"
@@ -39,8 +40,8 @@ def ApplyREGFile(getWhiteUsers):
 
         SQLrequestSelect = """SELECT * from metricsStatus where hostname = %s and username = %s"""
         SQLrequestInsert = """INSERT INTO metricsStatus (`hostname`, `username`, `task1stamp`,
-                                                        `task2stamp`, `task3stamp`, `task4stamp` ) VALUES (
-										                         %s, %s, NOW(), NOW(), NOW(), NOW()) """
+                                                        `task2stamp`, `task3stamp`) VALUES (
+										                         %s, %s, NOW(), NOW(), NOW()) """
         try:
             connection.connect()
         except Exception as E:
@@ -81,7 +82,7 @@ def main():
         client.exec_command(
             r"xcopy \\shots11\tools\sendmetrics\send_logoff.bat C:\WINDOWS\System32\GroupPolicy\User\Scripts\Logoff\ ")
 
-        ApplyREGFile(getWhiteUsers)
+        ApplyREGFile(getWhiteUsers, host)
 
         for c in const.command:
             try:
@@ -96,6 +97,8 @@ def main():
                         f'schtasks /create /xml "\\\\shots11\\tools\\sendmetrics\\{c[-2]}.xml" /tn "\\UskoInc\\{c[-2]}"')
                 else:
                     print("Scheduled yet")
+
+
 
 
 

@@ -30,13 +30,3 @@ with open('arp.csv', 'r') as csvfile:
                             connection.commit()
                         cursor.close()
                         connection.close()
-
-
-
-
-
-
-
-
-
-

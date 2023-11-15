@@ -1,4 +1,4 @@
-reg_file = "\\\\shots11\\tools\\sendmetrics\\gpologoff.reg"
+reg_file = f'\\\\shots11\\tools\\sendmetrics\\gpologoff.reg'
 bat_file = "C:\\WINDOWS\\System32\\GroupPolicy\\User\\Scripts\\Logoff\\"
 bat      = f'\\shots11\tools\sendmetrics\send_logoff.bat'
 
@@ -8,5 +8,5 @@ command3 = r'schtasks /query /tn "\UskoInc\3"'
 command = [command1, command2, command3]
 
 blackusers = ['NTUSER.DAT', 'Public', 'cpeter', 'Guest', 'DefaultAccount', 'skhashimi', 'mtsybulskyi',
-              'Admin', 'Administrator', 'admin', 'sshd', 'DefaultAccount', 'WDAGUtilityAccount', 'QBPOSDBSrvUser',
+              'Admin', 'Administrator', 'sshd', 'DefaultAccount', 'WDAGUtilityAccount', 'QBPOSDBSrvUser',
               'WDAGUtilityAccount', 'DevToolsUser']

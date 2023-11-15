@@ -33,9 +33,10 @@ def ApplyREGFile(getWhiteUsers, host):
     """apply reg-file for each user"""
     for user in getWhiteUsers():
         path = f"C:\\Users\\{user}\\NTUSER.DAT"
+        cmd = f'reg import {reg_file}'
 
         client.exec_command(f'reg load HKU\\Usko {path}')
-        client.exec_command(f'reg import {reg_file}')
+        client.exec_command(cmd)
         client.exec_command('reg unload HKU\\Usko')
 
         SQLrequestSelect = """SELECT * from metricsStatus where hostname = %s and username = %s"""

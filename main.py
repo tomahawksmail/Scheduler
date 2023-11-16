@@ -81,22 +81,6 @@ def main():
             print(E)
 
 
-
-        # for c in const.command:
-        #     try:
-        #         _stdin, _stdout, _stderr = client.exec_command(c)
-        #         out = _stdout.read().decode()
-        #     except Exception as E:
-        #         print(E)
-        #     else:
-        #         if out == '':
-        #             # client.exec_command(r'reg add "HKCU\Software\Policies\Microsoft\Windows\System\Scripts\Logoff" /v "0" /t REG_SZ /d "C:\scripts\GPOUC\test.bat" /f')
-        #             print(f'Create and enable schedule task {c[-2]}')
-        #             client.exec_command(
-        #                 f'schtasks /create /xml "\\\\shots11\\tools\\sendmetrics\\{c[-2]}.xml" /tn "\\UskoInc\\{c[-2]}"')
-        #         else:
-        #             print("Scheduled yet")
-
         cursor.close()
         connection.close()
 

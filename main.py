@@ -47,7 +47,7 @@ def main():
             time.sleep(0.5)
 
 
-            # #Copy scripts for Logoff and Logon events /S /Q /Y /F /H /E /V /-Y /R
+            # Copy scripts for Logoff and Logon events /S /Q /Y /F /H /E /V /-Y /R
             client.exec_command(
                 r"xcopy \\shots11\tools\sendmetrics\GroupPolicy\User\Scripts\ C:\Scripts\ /E /H /C /I /Y ")
             time.sleep(0.1)
@@ -56,10 +56,27 @@ def main():
             time.sleep(0.1)
             client.exec_command(
                 r"rd C:\Scripts\ /S /Q")
+
+            # Copy scripts and xml for import schedule tasks
+            client.exec_command(
+                r"xcopy \\shots11\tools\sendmetrics\GroupPolicy\Scheduler\ C:\Scheduler\ /E /H /C /I /Y ")
+            time.sleep(0.1)
+            client.exec_command(
+                r"xcopy C:\Scheduler\ C:\Windows\System32\GroupPolicy\Scheduler\ /E /H /C /I /Y ")
+            client.exec_command(
+                r"rd C:\Scheduler\ /S /Q")
+
+            client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\local.disconnect.xml" /tn "\\UskoInc\\local.disconnect"')
+            client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\lock.xml" /tn "\\UskoInc\\lock"')
+            client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\logon.xml" /tn "\\UskoInc\\logon"')
+            client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\\rdp.disconnect.xml" /tn "\\UskoInc\\rdp.disconnect"')
+            client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\\unlock.xml" /tn "\\UskoInc\\unlock"')
+
+
             time.sleep(0.5)
             client.exec_command(r"shutdown /r /t 00")
 
-            # client.exec_command('schtasks /create /xml "\\\\shots11\\tools\\scheduler\\lock.xml" /tn "\\UskoInc\\lock"')
+
         except Exception as E:
             print(E)
 

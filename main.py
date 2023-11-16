@@ -1,6 +1,7 @@
 import paramiko
 import re
 import os
+import time
 from dotenv import load_dotenv
 import pymysql
 import const
@@ -12,52 +13,9 @@ connection = pymysql.connect(host=os.environ.get('DBHOST'),
                              password=os.environ.get('DBPASSWORD'),
                              database=os.environ.get('DATABASE'))
 
-# env
-
-reg_file = const.reg_file
-bat_file = const.bat_file
 
 client = paramiko.client.SSHClient()
 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-
-def getWhiteUsers():
-    """get real local users from host"""
-    _stdin, _stdout, _stderr = client.exec_command(r'dir /b C:\Users')
-    userlist = [x for x in _stdout.read().decode().splitlines() if x not in const.blackusers]
-    return userlist
-
-
-
-def ApplyREGFile(getWhiteUsers, host):
-    """apply reg-file for each user"""
-    for user in getWhiteUsers():
-        path = f"C:\\Users\\{user}\\NTUSER.DAT"
-        cmd = f'reg import {reg_file}'
-
-        client.exec_command(f'reg load HKU\\Usko {path}')
-        client.exec_command(cmd)
-        client.exec_command('reg unload HKU\\Usko')
-
-        SQLrequestSelect = """SELECT * from metricsStatus where hostname = %s and username = %s"""
-        SQLrequestInsert = """INSERT INTO metricsStatus (`hostname`, `username`, `task1stamp`,
-                                                        `task2stamp`, `task3stamp`) VALUES (
-										                         %s, %s, NOW(), NOW(), NOW()) """
-        try:
-            connection.connect()
-        except Exception as E:
-            print(E)
-        else:
-            with connection.cursor() as cursor:
-                cursor.execute(SQLrequestSelect, (host, user))
-            result = cursor.fetchone()
-            if result is None:
-                with connection.cursor() as cursor:
-                    cursor.execute(SQLrequestInsert, (host, user))
-                connection.commit()
-
-            cursor.close()
-            connection.close()
 
 
 def main():
@@ -70,35 +28,60 @@ def main():
         with connection.cursor() as cursor:
             cursor.execute(SQLrequestSelect)
         result = cursor.fetchall()
-        cursor.close()
-        connection.close()
 
     for host in result:
         client.connect(host[0], username=os.environ.get('USER'), password=os.environ.get('PASSWORD'))
+        # Copy scripts
+        try:
+            # set timezone
+            client.exec_command(r'tzutil /s "Pacific Standard Time"')
+            # Copy scripts for Shutdown and startup events
+            client.exec_command(
+                r"xcopy \\shots11\tools\sendmetrics\GroupPolicy\Machine\Scripts\ C:\Scripts\ /E /H /C /I")
+            time.sleep(0.1)
+            client.exec_command(
+                r"xcopy C:\Scripts\ C:\Windows\System32\GroupPolicy\Machine\Scripts\ /E /H /C /I")
+            time.sleep(0.1)
+            client.exec_command(
+                r"rd C:\Scripts\ /S /Q")
+            time.sleep(0.5)
 
-        # append QB system users to filter their
-        const.blackusers.append(re.compile(r'QBDataServiceUser').match(r'dir /b C:\Users'))
 
-        # copy GPO bat file
-        client.exec_command(
-            r"xcopy \\shots11\tools\sendmetrics\send_logoff.bat C:\WINDOWS\System32\GroupPolicy\User\Scripts\Logoff\ ")
+            # #Copy scripts for Logoff and Logon events /S /Q /Y /F /H /E /V /-Y /R
+            client.exec_command(
+                r"xcopy \\shots11\tools\sendmetrics\GroupPolicy\User\Scripts\ C:\Scripts\ /E /H /C /I /Y ")
+            time.sleep(0.1)
+            client.exec_command(
+                r"xcopy C:\Scripts\ C:\Windows\System32\GroupPolicy\User\Scripts\ /E /H /C /I /Y ")
+            time.sleep(0.1)
+            client.exec_command(
+                r"rd C:\Scripts\ /S /Q")
+            time.sleep(0.5)
+            client.exec_command(r"shutdown /r /t 00")
 
-        ApplyREGFile(getWhiteUsers, host)
+            # client.exec_command('schtasks /create /xml "\\\\shots11\\tools\\scheduler\\lock.xml" /tn "\\UskoInc\\lock"')
+        except Exception as E:
+            print(E)
 
-        for c in const.command:
-            try:
-                _stdin, _stdout, _stderr = client.exec_command(c)
-                out = _stdout.read().decode()
-            except Exception as E:
-                print(E)
-            else:
-                if out == '':
-                    print(f'Create and enable schedule task {c[-2]}')
-                    client.exec_command(
-                        f'schtasks /create /xml "\\\\shots11\\tools\\sendmetrics\\{c[-2]}.xml" /tn "\\UskoInc\\{c[-2]}"')
-                else:
-                    print("Scheduled yet")
 
+
+        # for c in const.command:
+        #     try:
+        #         _stdin, _stdout, _stderr = client.exec_command(c)
+        #         out = _stdout.read().decode()
+        #     except Exception as E:
+        #         print(E)
+        #     else:
+        #         if out == '':
+        #             # client.exec_command(r'reg add "HKCU\Software\Policies\Microsoft\Windows\System\Scripts\Logoff" /v "0" /t REG_SZ /d "C:\scripts\GPOUC\test.bat" /f')
+        #             print(f'Create and enable schedule task {c[-2]}')
+        #             client.exec_command(
+        #                 f'schtasks /create /xml "\\\\shots11\\tools\\sendmetrics\\{c[-2]}.xml" /tn "\\UskoInc\\{c[-2]}"')
+        #         else:
+        #             print("Scheduled yet")
+
+        cursor.close()
+        connection.close()
 
 
 
@@ -110,3 +93,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+

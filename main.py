@@ -74,16 +74,17 @@ def main():
             time.sleep(0.1)
             client.exec_command(
                 r"xcopy C:\Scheduler\ C:\Windows\System32\GroupPolicy\Scheduler\ /E /H /C /I /Y ")
+
+            print(f"Applying schedule tasks at {host[0]}")
+            client.exec_command(r'schtasks /create /xml "C:\Scheduler\local.disconnect.xml" /tn "\\UskoInc\\local.disconnect"')
+            client.exec_command(r'schtasks /create /xml "C:\Scheduler\lock.xml" /tn "\\UskoInc\\lockPC"')
+            client.exec_command(r'schtasks /create /xml "C:\Scheduler\logon.xml" /tn "\\UskoInc\\logon"')
+            client.exec_command(r'schtasks /create /xml "C:\Scheduler\rdp.disconnect.xml" /tn "\\UskoInc\\rdp.disconnect"')
+            client.exec_command(r'schtasks /create /xml "C:\Scheduler\unlock.xml" /tn "\\UskoInc\\unlockPC"')
+
             print(f"Deleting files from {host[0]}")
             client.exec_command(
                 r"rd C:\Scheduler\ /S /Q")
-
-            print(f"Applying schedule tasks at {host[0]}")
-            client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\local.disconnect.xml" /tn "\\UskoInc\\local.disconnect"')
-            client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\lock.xml" /tn "\\UskoInc\\lock"')
-            client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\logon.xml" /tn "\\UskoInc\\logon"')
-            client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\\rdp.disconnect.xml" /tn "\\UskoInc\\rdp.disconnect"')
-            client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\\unlock.xml" /tn "\\UskoInc\\unlock"')
 
             print(f"Reboot host {host[0]}")
             time.sleep(0.5)

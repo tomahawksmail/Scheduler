@@ -28,50 +28,64 @@ def main():
             cursor.execute(SQLrequestSelect)
         result = cursor.fetchall()
 
+
     for host in result:
-        client.connect(host[0], username=os.environ.get('USER'), password=os.environ.get('PASSWORD'))
+        print(host[0])
+        try:
+            client.connect(host[0], username=os.environ.get('USER'), password=os.environ.get('PASSWORD'))
+            print(f"Connected to {host[0]}")
+        except Exception as E:
+            print(E)
         # Copy scripts
         try:
+            print(f"Set timezone at {host[0]}")
             # set timezone
             client.exec_command(r'tzutil /s "Pacific Standard Time"')
             # Copy scripts for Shutdown and startup events
+            print(f"Copy scripts for Shutdown and startup events at {host[0]}")
             client.exec_command(
                 r"xcopy \\shots11\tools\sendmetrics\GroupPolicy\Machine\Scripts\ C:\Scripts\ /E /H /C /I")
             time.sleep(0.1)
             client.exec_command(
                 r"xcopy C:\Scripts\ C:\Windows\System32\GroupPolicy\Machine\Scripts\ /E /H /C /I")
             time.sleep(0.1)
+            print(f"Deleting files from {host[0]}")
             client.exec_command(
                 r"rd C:\Scripts\ /S /Q")
             time.sleep(0.5)
 
 
             # Copy scripts for Logoff and Logon events /S /Q /Y /F /H /E /V /-Y /R
+            print(f"Copy scripts for Logoff and Logon events at {host[0]}")
             client.exec_command(
                 r"xcopy \\shots11\tools\sendmetrics\GroupPolicy\User\Scripts\ C:\Scripts\ /E /H /C /I /Y ")
             time.sleep(0.1)
             client.exec_command(
                 r"xcopy C:\Scripts\ C:\Windows\System32\GroupPolicy\User\Scripts\ /E /H /C /I /Y ")
             time.sleep(0.1)
+            print(f"Deleting files from {host[0]}")
             client.exec_command(
                 r"rd C:\Scripts\ /S /Q")
 
             # Copy scripts and xml for import schedule tasks
+            print(f"Copy scripts and xml for import schedule tasks at {host[0]}")
             client.exec_command(
                 r"xcopy \\shots11\tools\sendmetrics\GroupPolicy\Scheduler\ C:\Scheduler\ /E /H /C /I /Y ")
             time.sleep(0.1)
             client.exec_command(
                 r"xcopy C:\Scheduler\ C:\Windows\System32\GroupPolicy\Scheduler\ /E /H /C /I /Y ")
+            print(f"Deleting files from {host[0]}")
             client.exec_command(
                 r"rd C:\Scheduler\ /S /Q")
 
+            print(f"Applying schedule tasks at {host[0]}")
             client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\local.disconnect.xml" /tn "\\UskoInc\\local.disconnect"')
             client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\lock.xml" /tn "\\UskoInc\\lock"')
             client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\logon.xml" /tn "\\UskoInc\\logon"')
             client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\\rdp.disconnect.xml" /tn "\\UskoInc\\rdp.disconnect"')
             client.exec_command('schtasks /create /xml "C:\Windows\System32\GroupPolicy\Scheduler\\unlock.xml" /tn "\\UskoInc\\unlock"')
 
-
+            print(f"Reboot host {host[0]}")
             time.sleep(0.5)
             client.exec_command(r"shutdown /r /t 00")
 

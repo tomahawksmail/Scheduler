@@ -4,14 +4,12 @@ import time
 from dotenv import load_dotenv
 import pymysql
 
-
 load_dotenv()
 
 connection = pymysql.connect(host=os.environ.get('DBHOST'),
                              user=os.environ.get('DBUSER'),
                              password=os.environ.get('DBPASSWORD'),
                              database=os.environ.get('DATABASE'))
-
 
 client = paramiko.client.SSHClient()
 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -27,7 +25,6 @@ def main():
         with connection.cursor() as cursor:
             cursor.execute(SQLrequestSelect)
         result = cursor.fetchall()
-
 
     for host in result:
         print(host[0])
@@ -53,7 +50,6 @@ def main():
             client.exec_command(
                 r"rd C:\Scripts\ /S /Q")
             time.sleep(0.5)
-
 
             # Copy scripts for Logoff and Logon events /S /Q /Y /F /H /E /V /-Y /R
             print(f"Copy scripts for Logoff and Logon events at {host[0]}")
@@ -89,12 +85,13 @@ def main():
             client.exec_command(r'schtasks /delete /tn  "\UskoInc\rdp.disconnect"')
             client.exec_command(r'schtasks /delete /tn  "\UskoInc\unlockPC"')
 
-
             print(f"Applying schedule tasks at {host[0]}")
-            client.exec_command(r'schtasks /create /xml "C:\Scheduler\local.disconnect.xml" /tn "\UskoInc\local.disconnect"')
+            client.exec_command(
+                r'schtasks /create /xml "C:\Scheduler\local.disconnect.xml" /tn "\UskoInc\local.disconnect"')
             client.exec_command(r'schtasks /create /xml "C:\Scheduler\lock.xml" /tn "\UskoInc\lockPC"')
             client.exec_command(r'schtasks /create /xml "C:\Scheduler\logon.xml" /tn "\UskoInc\logon"')
-            client.exec_command(r'schtasks /create /xml "C:\Scheduler\rdp.disconnect.xml" /tn "\UskoInc\rdp.disconnect"')
+            client.exec_command(
+                r'schtasks /create /xml "C:\Scheduler\rdp.disconnect.xml" /tn "\UskoInc\rdp.disconnect"')
             client.exec_command(r'schtasks /create /xml "C:\Scheduler\unlock.xml" /tn "\UskoInc\unlockPC"')
             time.sleep(0.5)
 
@@ -110,12 +107,9 @@ def main():
         except Exception as E:
             print(E)
 
-
         cursor.close()
         connection.close()
 
 
 if __name__ == "__main__":
     main()
-
-

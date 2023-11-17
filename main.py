@@ -42,10 +42,10 @@ def main():
             # Copy scripts for Shutdown and startup events
             print(f"Copy scripts for Shutdown and startup events at {host[0]}")
             client.exec_command(
-                r"xcopy \\shots11\tools\sendmetrics\GroupPolicy\Machine\Scripts\ C:\Scripts\ /E /H /C /I")
+                r"xcopy \\shots11\tools\sendmetrics\GroupPolicy\Machine\Scripts\ C:\Scripts\ /E /H /C /I /Y")
             time.sleep(0.1)
             client.exec_command(
-                r"xcopy C:\Scripts\ C:\Windows\System32\GroupPolicy\Machine\Scripts\ /E /H /C /I")
+                r"xcopy C:\Scripts\ C:\Windows\System32\GroupPolicy\Machine\Scripts\ /E /H /C /I /Y")
             time.sleep(0.1)
             print(f"Deleting files from {host[0]}")
             client.exec_command(

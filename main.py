@@ -27,9 +27,10 @@ def main():
         result = cursor.fetchall()
 
     for host in result:
-        print(host[0])
+        print(f"host -  {host[0]}")
         try:
             client.connect(host[0], username=os.environ.get('USER'), password=os.environ.get('PASSWORD'))
+            print("-")
             print(f"Connected to {host[0]}")
         except Exception as E:
             print(E)
@@ -70,7 +71,10 @@ def main():
             time.sleep(0.1)
             client.exec_command(
                 r"xcopy C:\Scheduler\ C:\Windows\System32\GroupPolicy\Scheduler\ /E /H /C /I /Y ")
-
+            print("-")
+            print("--")
+            print("---")
+            print("")
             print(f"Stoping schedule tasks at {host[0]}")
             client.exec_command(r'schtasks /end /tn  "\UskoInc\local.disconnect"')
             client.exec_command(r'schtasks /end /tn  "\UskoInc\lockPC"')

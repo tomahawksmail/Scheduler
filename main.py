@@ -75,12 +75,28 @@ def main():
             client.exec_command(
                 r"xcopy C:\Scheduler\ C:\Windows\System32\GroupPolicy\Scheduler\ /E /H /C /I /Y ")
 
+            print(f"Stoping schedule tasks at {host[0]}")
+            client.exec_command(r'schtasks /end /tn  "\UskoInc\local.disconnect"')
+            client.exec_command(r'schtasks /end /tn  "\UskoInc\lockPC"')
+            client.exec_command(r'schtasks /end /tn  "\UskoInc\logon"')
+            client.exec_command(r'schtasks /end /tn  "\UskoInc\rdp.disconnect"')
+            client.exec_command(r'schtasks /end /tn  "\UskoInc\unlockPC"')
+
+            print(f"Deleting schedule tasks at {host[0]}")
+            client.exec_command(r'schtasks /delete /tn  "\UskoInc\local.disconnect"')
+            client.exec_command(r'schtasks /delete /tn  "\UskoInc\lockPC"')
+            client.exec_command(r'schtasks /delete /tn  "\UskoInc\logon"')
+            client.exec_command(r'schtasks /delete /tn  "\UskoInc\rdp.disconnect"')
+            client.exec_command(r'schtasks /delete /tn  "\UskoInc\unlockPC"')
+
+
             print(f"Applying schedule tasks at {host[0]}")
-            client.exec_command(r'schtasks /create /xml "C:\Scheduler\local.disconnect.xml" /tn "\\UskoInc\\local.disconnect"')
-            client.exec_command(r'schtasks /create /xml "C:\Scheduler\lock.xml" /tn "\\UskoInc\\lockPC"')
-            client.exec_command(r'schtasks /create /xml "C:\Scheduler\logon.xml" /tn "\\UskoInc\\logon"')
-            client.exec_command(r'schtasks /create /xml "C:\Scheduler\rdp.disconnect.xml" /tn "\\UskoInc\\rdp.disconnect"')
-            client.exec_command(r'schtasks /create /xml "C:\Scheduler\unlock.xml" /tn "\\UskoInc\\unlockPC"')
+            client.exec_command(r'schtasks /create /xml "C:\Scheduler\local.disconnect.xml" /tn "\UskoInc\local.disconnect"')
+            client.exec_command(r'schtasks /create /xml "C:\Scheduler\lock.xml" /tn "\UskoInc\lockPC"')
+            client.exec_command(r'schtasks /create /xml "C:\Scheduler\logon.xml" /tn "\UskoInc\logon"')
+            client.exec_command(r'schtasks /create /xml "C:\Scheduler\rdp.disconnect.xml" /tn "\UskoInc\rdp.disconnect"')
+            client.exec_command(r'schtasks /create /xml "C:\Scheduler\unlock.xml" /tn "\UskoInc\unlockPC"')
+            time.sleep(0.5)
 
             print(f"Deleting files from {host[0]}")
             client.exec_command(
@@ -97,13 +113,6 @@ def main():
 
         cursor.close()
         connection.close()
-
-
-
-
-# delete schedule tasks
-# schtasks /end /tn "\UskoInc\1"
-# schtasks /delete /tn "\UskoInc\1" /f
 
 
 if __name__ == "__main__":

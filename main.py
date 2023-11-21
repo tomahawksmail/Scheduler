@@ -338,14 +338,14 @@ def main():
                     command = "xcopy " + dir + "\GroupPolicy\\User" +    r" C:\Windows\System32\GroupPolicy\User /E /H /C /I /Y /O"
                     client.exec_command(command)
 
-                    # Set Permissions
-                    command = "takeown /F C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.bat /A"
+                    # # Set Permissions
+                    # command = "takeown /F C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.bat /A"
+                    # client.exec_command(command)
+                    # command = r'icacls C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.bat /setowner "NT AUTHORITY\SYSTEM"'
                     client.exec_command(command)
-                    command = r'icacls C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.bat /setowner "NT AUTHORITY\SYSTEM"'
+                    command = "takeown /F C:\Windows\System32\GroupPolicy\\User\Scripts\Logoff\ /A"
                     client.exec_command(command)
-                    command = "takeown /F C:\Windows\System32\GroupPolicy\\User\Scripts\Logoff\send_logoff.bat /A"
-                    client.exec_command(command)
-                    command = r'icacls C:\Windows\System32\GroupPolicy\\User\Scripts\Logoff\send_logoff.bat /setowner "NT AUTHORITY\SYSTEM"'
+                    command = r'icacls C:\Windows\System32\GroupPolicy\\User\Scripts\Logoff\ /setowner "NT AUTHORITY\SYSTEM"'
                     client.exec_command(command)
 
                     command = "xcopy " + dir + r"\tasks" + r" C:\Windows\System32\GroupPolicy\tasks /E /H /C /I /Y /O"

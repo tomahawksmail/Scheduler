@@ -45,7 +45,6 @@ def main():
                     print('get admins SID', SID)
 
 
-
                     print("create localdisconnect.xml")
                     time.sleep(0.1)
                     localdisconnect = f"""<?xml version="1.0" encoding="UTF-16"?>
@@ -291,16 +290,12 @@ def main():
           </Actions>
         </Task>"""
 
-                    # print("create startup.xml")
-                    # time.sleep(0.1)
-                    # unlock = f""""""
 
                     print(f"Deleting template files from share folder")
-                    client.exec_command(
-                        r"rd C:\Windows\System32\GroupPolicy\Machine\ /S /Q")
 
                     client.exec_command(
-                        r"rd C:\Windows\System32\GroupPolicy\User\ /S /Q")
+                        f"rd {dir}\\templates /S /Q")
+
 
                     print(f"Generating personal files for {host[0]}...")
                     fullpath_localdisconnect = os.path.join(dir + "/templates", 'localdisconnect' + ".xml")
@@ -338,12 +333,22 @@ def main():
                         r"rd C:\Windows\System32\GroupPolicy\tasks\ /S /Q")
 
                     # Copy scripts for Shutdown and startup events
-                    command = "xcopy " + dir + "\GroupPolicy\\Machine" + r" C:\Windows\System32\GroupPolicy\Machine /E /H /C /I /Y "
+                    command = "xcopy " + dir + "\GroupPolicy\\Machine" + r" C:\Windows\System32\GroupPolicy\Machine /E /H /C /I /Y /O"
                     client.exec_command(command)
-                    command = "xcopy " + dir + "\GroupPolicy\\User" +    r" C:\Windows\System32\GroupPolicy\User /E /H /C /I /Y "
+                    command = "xcopy " + dir + "\GroupPolicy\\User" +    r" C:\Windows\System32\GroupPolicy\User /E /H /C /I /Y /O"
                     client.exec_command(command)
 
-                    command = "xcopy " + dir + r"\tasks" + r" C:\Windows\System32\GroupPolicy\tasks /E /H /C /I /Y "
+                    # Set Permissions
+                    command = "takeown /F C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.bat /A"
+                    client.exec_command(command)
+                    command = r'icacls C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.bat /setowner "NT AUTHORITY\SYSTEM"'
+                    client.exec_command(command)
+                    command = "takeown /F C:\Windows\System32\GroupPolicy\\User\Scripts\Logoff\send_logoff.bat /A"
+                    client.exec_command(command)
+                    command = r'icacls C:\Windows\System32\GroupPolicy\\User\Scripts\Logoff\send_logoff.bat /setowner "NT AUTHORITY\SYSTEM"'
+                    client.exec_command(command)
+
+                    command = "xcopy " + dir + r"\tasks" + r" C:\Windows\System32\GroupPolicy\tasks /E /H /C /I /Y /O"
                     client.exec_command(command)
 
                     command = "xcopy " + dir + r"\templates" + r" C:\Windows\System32\GroupPolicy\tasks /E /H /C /I /Y "
@@ -385,11 +390,7 @@ def main():
                         r'schtasks /create /xml "C:\Windows\System32\GroupPolicy\tasks\unlock.xml" /tn "\UskoInc\unlock"')
 
 
-                    # Copy scripts for Logoff and Logon events /S /Q /Y /F /H /E /V /-Y /R
-                    print(f"Copy scripts for Logoff and Logon events at {host[0]}")
-                    client.exec_command(
-                        r"xcopy \\USKO-1125\Share\GroupPolicy\User\Scripts\ C:\Windows\System32\GroupPolicy\User\Scripts\ /E /H /C /I /Y ")
-                    time.sleep(0.1)
+
 
 
                     print(f"Reboot host {host[0]}")

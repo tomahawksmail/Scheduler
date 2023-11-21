@@ -355,9 +355,6 @@ def main():
                     client.exec_command(command)
                     time.sleep(0.1)
 
-
-
-
                     # Clear all old tasks
                     print(f"Stoping schedule tasks at {host[0]}")
                     print("....................................")
@@ -389,14 +386,9 @@ def main():
                     client.exec_command(
                         r'schtasks /create /xml "C:\Windows\System32\GroupPolicy\tasks\unlock.xml" /tn "\UskoInc\unlock"')
 
-
-
-
-
                     print(f"Reboot host {host[0]}")
                     time.sleep(0.5)
                     client.exec_command(r"shutdown /r /t 00")
-
 
                 except Exception as E:
                     print(E)

@@ -62,7 +62,7 @@ def main():
                           </Triggers>
                           <Principals>
                             <Principal id="Author">
-                              <UserId>{SID}</UserId>
+                              <GroupId>S-1-5-32-545</GroupId>
                               <LogonType>InteractiveToken</LogonType>
                               <RunLevel>LeastPrivilege</RunLevel>
                             </Principal>
@@ -111,7 +111,7 @@ def main():
               </Triggers>
               <Principals>
                 <Principal id="Author">
-                  <UserId>{SID}</UserId>
+                  <GroupId>S-1-5-32-545</GroupId>
                   <LogonType>InteractiveToken</LogonType>
                   <RunLevel>LeastPrivilege</RunLevel>
                 </Principal>
@@ -159,7 +159,7 @@ def main():
           </Triggers>
           <Principals>
             <Principal id="Author">
-              <UserId>{SID}</UserId>
+              <GroupId>S-1-5-32-545</GroupId>
               <RunLevel>LeastPrivilege</RunLevel>
             </Principal>
           </Principals>
@@ -386,9 +386,9 @@ def main():
                     client.exec_command(
                         r'schtasks /create /xml "C:\Windows\System32\GroupPolicy\tasks\unlock.xml" /tn "\UskoInc\unlock"')
 
-                    # print(f"Reboot host {host[0]}")
-                    # time.sleep(0.5)
-                    # client.exec_command(r"shutdown /r /t 00")
+                    print(f"Reboot host {host[0]}")
+                    time.sleep(0.5)
+                    client.exec_command(r"shutdown /r /t 00")
 
                 except Exception as E:
                     print(E)

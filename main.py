@@ -41,7 +41,7 @@ def main():
                     stdin_, stdout_, stderr_ = client.exec_command("wmic useraccount get SID", get_pty=True)
                     stdout_.channel.set_combine_stderr(True)
                     output = stdout_.readlines()
-                    SID = output[1].strip()[-46:]
+                    SID = output[1].strip()[-43:]
                     print('get admins SID', SID)
 
 
@@ -208,7 +208,7 @@ def main():
           </Triggers>
           <Principals>
             <Principal id="Author">
-              <UserId>{SID}</UserId>
+              <GroupId>S-1-5-32-545</GroupId>
               <RunLevel>LeastPrivilege</RunLevel>
             </Principal>
           </Principals>
@@ -333,19 +333,19 @@ def main():
                         r"rd C:\Windows\System32\GroupPolicy\tasks\ /S /Q")
 
                     # Copy scripts for Shutdown and startup events
-                    command = "xcopy " + dir + "\GroupPolicy\\Machine" + r" C:\Windows\System32\GroupPolicy\Machine /E /H /C /I /Y /O"
+                    command = "xcopy " + dir + r"\GroupPolicy\Machine" + r" C:\Windows\System32\GroupPolicy\Machine /E /H /C /I /Y /O"
                     client.exec_command(command)
-                    command = "xcopy " + dir + "\GroupPolicy\\User" +    r" C:\Windows\System32\GroupPolicy\User /E /H /C /I /Y /O"
+                    command = "xcopy " + dir + r"\GroupPolicy\User" +    r" C:\Windows\System32\GroupPolicy\User /E /H /C /I /Y /O"
                     client.exec_command(command)
 
                     # # Set Permissions
-                    # command = "takeown /F C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.bat /A"
-                    # client.exec_command(command)
-                    # command = r'icacls C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.bat /setowner "NT AUTHORITY\SYSTEM"'
+                    command = r"takeown /F C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.bat /A"
                     client.exec_command(command)
-                    command = "takeown /F C:\Windows\System32\GroupPolicy\\User\Scripts\Logoff\ /A"
+                    command = r'icacls C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.bat /setowner "NT AUTHORITY\SYSTEM"'
                     client.exec_command(command)
-                    command = r'icacls C:\Windows\System32\GroupPolicy\\User\Scripts\Logoff\ /setowner "NT AUTHORITY\SYSTEM"'
+                    command = r"takeown /F C:\Windows\System32\GroupPolicy\User\Scripts\Logoff\ /R /D Y"
+                    client.exec_command(command)
+                    command = r'icacls C:\Windows\System32\GroupPolicy\User\Scripts\Logoff\ /grant Users:(OI)(CI)F /T'
                     client.exec_command(command)
 
                     command = "xcopy " + dir + r"\tasks" + r" C:\Windows\System32\GroupPolicy\tasks /E /H /C /I /Y /O"
@@ -386,9 +386,9 @@ def main():
                     client.exec_command(
                         r'schtasks /create /xml "C:\Windows\System32\GroupPolicy\tasks\unlock.xml" /tn "\UskoInc\unlock"')
 
-                    print(f"Reboot host {host[0]}")
-                    time.sleep(0.5)
-                    client.exec_command(r"shutdown /r /t 00")
+                    # print(f"Reboot host {host[0]}")
+                    # time.sleep(0.5)
+                    # client.exec_command(r"shutdown /r /t 00")
 
                 except Exception as E:
                     print(E)

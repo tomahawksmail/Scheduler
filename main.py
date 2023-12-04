@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 import pymysql
 
 load_dotenv()
-dir = "\\\\USKO-1125\Share"
+# dir = "\\\\USKO-1125\Share"
+dir = r"\\shots11\tools"
 connection = pymysql.connect(host=os.environ.get('DBHOST'),
                              user=os.environ.get('DBUSER'),
                              password=os.environ.get('DBPASSWORD'),

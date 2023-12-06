@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 import pymysql
 
 load_dotenv()
-# dir = "\\\\USKO-1125\Share"
-dir = r"\\shots11\tools"
+dir = "\\\\USKO-1125\Share"
+# dir = r'C:\Windows\System32\GroupPolicy'
 connection = pymysql.connect(host=os.environ.get('DBHOST'),
                              user=os.environ.get('DBUSER'),
                              password=os.environ.get('DBPASSWORD'),
@@ -15,9 +15,7 @@ connection = pymysql.connect(host=os.environ.get('DBHOST'),
 client = paramiko.client.SSHClient()
 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-
 def main():
-
     SQLrequestSelect = """SELECT node from computerlist WHERE `check` = 1"""
     try:
         connection.connect()
@@ -45,7 +43,7 @@ def main():
                     SID = output[1].strip()[-43:]
                     print('get admins SID', SID)
 
-
+                    # create xml files for scheduler
                     print("create localdisconnect.xml")
                     time.sleep(0.1)
                     localdisconnect = f"""<?xml version="1.0" encoding="UTF-16"?>
@@ -293,17 +291,16 @@ def main():
 
 
                     print(f"Deleting template files from share folder")
-
                     client.exec_command(
                         f"rd {dir}\\templates /S /Q")
 
 
                     print(f"Generating personal files for {host[0]}...")
-                    fullpath_localdisconnect = os.path.join(dir + "/templates", 'localdisconnect' + ".xml")
-                    fullpath_rdpdisconnect = os.path.join(dir + "/templates", 'rdpdisconnect' + ".xml")
-                    fullpath_lock = os.path.join(dir + "/templates", 'lock' + ".xml")
-                    fullpath_logon = os.path.join(dir + "/templates", 'logon' + ".xml")
-                    fullpath_unlock = os.path.join(dir + "/templates", 'unlock' + ".xml")
+                    fullpath_localdisconnect = os.path.join(dir   + r"\templates", 'localdisconnect' + ".xml")
+                    fullpath_rdpdisconnect = os.path.join(dir     + r"\templates", 'rdpdisconnect' + ".xml")
+                    fullpath_lock = os.path.join(dir              + r"\templates", 'lock' + ".xml")
+                    fullpath_logon = os.path.join(dir             + r"\templates", 'logon' + ".xml")
+                    fullpath_unlock = os.path.join(dir            + r"\templates", 'unlock' + ".xml")
 
                     # Safe file
                     with open(fullpath_localdisconnect, "w", encoding='utf-16') as f:

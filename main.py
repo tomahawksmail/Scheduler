@@ -16,6 +16,13 @@ client = paramiko.client.SSHClient()
 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
 def main():
+
+
+
+
+
+
+
     SQLrequestSelect = """SELECT node from computerlist WHERE `check` = 1"""
     try:
         connection.connect()
@@ -62,7 +69,6 @@ def main():
                           <Principals>
                             <Principal id="Author">
                               <GroupId>S-1-5-32-545</GroupId>
-                              <LogonType>InteractiveToken</LogonType>
                               <RunLevel>LeastPrivilege</RunLevel>
                             </Principal>
                           </Principals>
@@ -111,7 +117,6 @@ def main():
               <Principals>
                 <Principal id="Author">
                   <GroupId>S-1-5-32-545</GroupId>
-                  <LogonType>InteractiveToken</LogonType>
                   <RunLevel>LeastPrivilege</RunLevel>
                 </Principal>
               </Principals>
@@ -331,9 +336,9 @@ def main():
                         r"rd C:\Windows\System32\GroupPolicy\tasks\ /S /Q")
 
                     # Copy scripts for Shutdown and startup events
-                    command = "xcopy " + dir + r"\GroupPolicy\Machine" + r" C:\Windows\System32\GroupPolicy\Machine /E /H /C /I /Y /O"
+                    command = "xcopy " + dir + r"\Machine" + r" C:\Windows\System32\GroupPolicy\Machine /E /H /C /I /Y /O"
                     client.exec_command(command)
-                    command = "xcopy " + dir + r"\GroupPolicy\User" +    r" C:\Windows\System32\GroupPolicy\User /E /H /C /I /Y /O"
+                    command = "xcopy " + dir + r"\User" +    r" C:\Windows\System32\GroupPolicy\User /E /H /C /I /Y /O"
                     client.exec_command(command)
 
                     # # Set Permissions
@@ -346,9 +351,6 @@ def main():
                     command = r'icacls C:\Windows\System32\GroupPolicy\User\Scripts\Logoff\ /grant Users:(OI)(CI)F /T'
                     client.exec_command(command)
 
-                    command = "xcopy " + dir + r"\tasks" + r" C:\Windows\System32\GroupPolicy\tasks /E /H /C /I /Y /O"
-                    client.exec_command(command)
-
                     command = "xcopy " + dir + r"\templates" + r" C:\Windows\System32\GroupPolicy\tasks /E /H /C /I /Y "
                     client.exec_command(command)
                     time.sleep(0.1)
@@ -358,17 +360,19 @@ def main():
                     print("....................................")
                     client.exec_command(r'schtasks /end /tn  "\UskoInc\local.disconnect"')
                     client.exec_command(r'schtasks /end /tn  "\UskoInc\rdp.disconnect"')
-                    client.exec_command(r'schtasks /end /tn  "\UskoInc\lockPC"')
+                    client.exec_command(r'schtasks /end /tn  "\UskoInc\lock"')
                     client.exec_command(r'schtasks /end /tn  "\UskoInc\logon"')
-                    client.exec_command(r'schtasks /end /tn  "\UskoInc\unlockPC"')
+                    client.exec_command(r'schtasks /end /tn  "\UskoInc\unlock"')
                     #
+                    time.sleep(0.1)
                     print(f"Deleting schedule tasks at {host[0]}")
                     print("....................................")
                     client.exec_command(r'schtasks /delete /tn  "\UskoInc\local.disconnect" /F')
                     client.exec_command(r'schtasks /delete /tn  "\UskoInc\rdp.disconnect" /F')
-                    client.exec_command(r'schtasks /delete /tn  "\UskoInc\lockPC" /F')
+                    client.exec_command(r'schtasks /delete /tn  "\UskoInc\lock" /F')
                     client.exec_command(r'schtasks /delete /tn  "\UskoInc\logon" /F')
-                    client.exec_command(r'schtasks /delete /tn  "\UskoInc\unlockPC" /F')
+                    client.exec_command(r'schtasks /delete /tn  "\UskoInc\unlock" /F')
+                    time.sleep(0.1)
 
                     # Applying schedule tasks
                     print(f"Applying schedule tasks at {host[0]}")
@@ -383,10 +387,18 @@ def main():
                         r'schtasks /create /xml "C:\Windows\System32\GroupPolicy\tasks\logon.xml" /tn "\UskoInc\logon"')
                     client.exec_command(
                         r'schtasks /create /xml "C:\Windows\System32\GroupPolicy\tasks\unlock.xml" /tn "\UskoInc\unlock"')
+                    time.sleep(0.1)
 
                     print(f"Reboot host {host[0]}")
                     time.sleep(0.5)
                     client.exec_command(r"shutdown /r /t 00")
+
+                    # log task to db
+                    SQLrequestSelect = f"INSERT INTO metricsStatus (hostname, task_stamp) VALUES ('{host[0]}', NOW())"""
+                    with connection.cursor() as cursor:
+                        cursor.execute(SQLrequestSelect)
+                        connection.commit()
+
 
                 except Exception as E:
                     print(E)

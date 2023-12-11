@@ -6,7 +6,7 @@ import pymysql
 
 load_dotenv()
 dir = "\\\\USKO-1125\Share"
-# dir = r'C:\Windows\System32\GroupPolicy'
+
 connection = pymysql.connect(host=os.environ.get('DBHOST'),
                              user=os.environ.get('DBUSER'),
                              password=os.environ.get('DBPASSWORD'),

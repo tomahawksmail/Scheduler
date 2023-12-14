@@ -399,8 +399,5 @@ def main():
         cursor.close()
         connection.close()
 
-
-
-
 if __name__ == "__main__":
     main()

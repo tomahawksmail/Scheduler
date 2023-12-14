@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import pymysql
 
 load_dotenv()
-dir = "\\\\USKO-1125\Share"
+dir = "\\\\USKO-1125\share"
 
 connection = pymysql.connect(host=os.environ.get('DBHOST'),
                              user=os.environ.get('DBUSER'),
@@ -360,18 +360,18 @@ def main():
                     print("....................................")
                     client.exec_command(r'schtasks /end /tn  "\UskoInc\local.disconnect"')
                     client.exec_command(r'schtasks /end /tn  "\UskoInc\rdp.disconnect"')
-                    client.exec_command(r'schtasks /end /tn  "\UskoInc\lock"')
+                    client.exec_command(r'schtasks /end /tn  "\UskoInc\lock_"')
                     client.exec_command(r'schtasks /end /tn  "\UskoInc\logon"')
-                    client.exec_command(r'schtasks /end /tn  "\UskoInc\unlock"')
+                    client.exec_command(r'schtasks /end /tn  "\UskoInc\unlock_"')
                     #
                     time.sleep(0.1)
                     print(f"Deleting schedule tasks at {host[0]}")
                     print("....................................")
                     client.exec_command(r'schtasks /delete /tn  "\UskoInc\local.disconnect" /F')
                     client.exec_command(r'schtasks /delete /tn  "\UskoInc\rdp.disconnect" /F')
-                    client.exec_command(r'schtasks /delete /tn  "\UskoInc\lock" /F')
+                    client.exec_command(r'schtasks /delete /tn  "\UskoInc\lock_" /F')
                     client.exec_command(r'schtasks /delete /tn  "\UskoInc\logon" /F')
-                    client.exec_command(r'schtasks /delete /tn  "\UskoInc\unlock" /F')
+                    client.exec_command(r'schtasks /delete /tn  "\UskoInc\unlock_" /F')
                     time.sleep(0.1)
 
                     # Applying schedule tasks
@@ -382,16 +382,16 @@ def main():
                     client.exec_command(
                         r'schtasks /create /xml "C:\Windows\System32\GroupPolicy\tasks\rdpdisconnect.xml" /tn "\UskoInc\rdp.disconnect"')
                     client.exec_command(
-                        r'schtasks /create /xml "C:\Windows\System32\GroupPolicy\tasks\lock.xml" /tn "\UskoInc\lock"')
+                        r'schtasks /create /xml "C:\Windows\System32\GroupPolicy\tasks\lock.xml" /tn "\UskoInc\lock_"')
                     client.exec_command(
                         r'schtasks /create /xml "C:\Windows\System32\GroupPolicy\tasks\logon.xml" /tn "\UskoInc\logon"')
                     client.exec_command(
-                        r'schtasks /create /xml "C:\Windows\System32\GroupPolicy\tasks\unlock.xml" /tn "\UskoInc\unlock"')
+                        r'schtasks /create /xml "C:\Windows\System32\GroupPolicy\tasks\unlock.xml" /tn "\UskoInc\unlock_"')
                     time.sleep(0.1)
 
-                    print(f"Reboot host {host[0]}")
-                    time.sleep(0.5)
-                    client.exec_command(r"shutdown /r /t 00")
+                    # print(f"Reboot host {host[0]}")
+                    # time.sleep(0.5)
+                    # client.exec_command(r"shutdown /r /t 00")
 
                     # log task to db
                     SQLrequestSelect = f"INSERT INTO metricsStatus (hostname, task_stamp) VALUES ('{host[0]}', NOW())"""

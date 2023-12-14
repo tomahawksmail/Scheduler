@@ -16,13 +16,6 @@ client = paramiko.client.SSHClient()
 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
 def main():
-
-
-
-
-
-
-
     SQLrequestSelect = """SELECT node from computerlist WHERE `check` = 1"""
     try:
         connection.connect()

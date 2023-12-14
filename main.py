@@ -395,7 +395,6 @@ def main():
 
                 except Exception as E:
                     print(E)
-
         cursor.close()
         connection.close()
 

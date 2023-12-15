@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 import pymysql
 
 load_dotenv()
-dir = "\\\\USKO-1125\share"
+# dir = "\\\\USKO-1125\share"
+dir = r"\\192.168.11.10\devadm\UskoPortalSupplyFiles"
 
 connection = pymysql.connect(host=os.environ.get('DBHOST'),
                              user=os.environ.get('DBUSER'),

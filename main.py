@@ -41,7 +41,8 @@ def main():
                     stdin_, stdout_, stderr_ = client.exec_command("wmic useraccount get SID", get_pty=True)
                     stdout_.channel.set_combine_stderr(True)
                     output = stdout_.readlines()
-                    SID = output[1].strip()[-43:]
+                    index = output[1].find("S") - 1
+                    SID = output[1].strip()[-index:]
                     print('get admins SID', SID)
 
                     # create xml files for scheduler

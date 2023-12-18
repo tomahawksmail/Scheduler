@@ -5,8 +5,9 @@ from dotenv import load_dotenv
 import pymysql
 
 load_dotenv()
-# dir = "\\\\USKO-1125\share"
-dir = r"\\192.168.11.10\devadm\UskoPortalSupplyFiles"
+# dir = "\\\\192.168.24.243\share"
+dir = "\\\\USKO-1125\share"
+# dir = r"\\192.168.11.10\devadm\UskoPortalSupplyFiles"
 
 connection = pymysql.connect(host=os.environ.get('DBHOST'),
                              user=os.environ.get('DBUSER'),
@@ -292,15 +293,15 @@ def main():
 
                     print(f"Deleting template files from share folder")
                     client.exec_command(
-                        f"rd {dir}\\templates /S /Q")
+                        f"rd {dir}\\tasks /S /Q")
 
 
                     print(f"Generating personal files for {host[0]}...")
-                    fullpath_localdisconnect = os.path.join(dir   + r"\templates", 'localdisconnect' + ".xml")
-                    fullpath_rdpdisconnect = os.path.join(dir     + r"\templates", 'rdpdisconnect' + ".xml")
-                    fullpath_lock = os.path.join(dir              + r"\templates", 'lock' + ".xml")
-                    fullpath_logon = os.path.join(dir             + r"\templates", 'logon' + ".xml")
-                    fullpath_unlock = os.path.join(dir            + r"\templates", 'unlock' + ".xml")
+                    fullpath_localdisconnect = os.path.join(dir   + r"\tasks", 'localdisconnect' + ".xml")
+                    fullpath_rdpdisconnect = os.path.join(dir     + r"\tasks", 'rdpdisconnect' + ".xml")
+                    fullpath_lock = os.path.join(dir              + r"\tasks", 'lock' + ".xml")
+                    fullpath_logon = os.path.join(dir             + r"\tasks", 'logon' + ".xml")
+                    fullpath_unlock = os.path.join(dir            + r"\tasks", 'unlock' + ".xml")
 
                     # Safe file
                     with open(fullpath_localdisconnect, "w", encoding='utf-16') as f:
@@ -341,7 +342,7 @@ def main():
                     client.exec_command(command)
                     command = r'icacls C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\startup.bat /setowner "NT AUTHORITY\SYSTEM"'
                     client.exec_command(command)
-                    command = r"takeown /F C:\Windows\System32\GroupPolicy\User\Scripts\Logoff\ /R /D Y"
+                    command = r"takeown /F C:\Windows\System32\GroupPolicy\User\Scripts\Logoff\ /R /D /Y"
                     client.exec_command(command)
                     command = r'icacls C:\Windows\System32\GroupPolicy\User\Scripts\Logoff\ /grant Users:(OI)(CI)F /T'
                     client.exec_command(command)

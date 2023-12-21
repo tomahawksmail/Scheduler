@@ -36,6 +36,10 @@ def main():
                 print(f"Connected to {host[0]}")
             except Exception as E:
                 print(E)
+                SQLrequestSelect = f"INSERT INTO metricsStatus (hostname, task_stamp) VALUES ('{host[0]} - Connection failed', NOW())"""
+                with connection.cursor() as cursor:
+                    cursor.execute(SQLrequestSelect)
+                    connection.commit()
             else:
                 try:
                     print(f"Set timezone at {host[0]}")

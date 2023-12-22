@@ -17,6 +17,7 @@ connection = pymysql.connect(host=os.environ.get('DBHOST'),
 client = paramiko.client.SSHClient()
 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
+
 def main():
     SQLrequestSelect = """SELECT node from computerlist WHERE `check` = 1"""
     try:
@@ -57,12 +58,17 @@ def main():
                     # Copy scripts for Shutdown and startup events
                     command = "xcopy " + dir + r"\Machine" + r" C:\Windows\System32\GroupPolicy\Machine /E /H /C /I /Y"
                     client.exec_command(command)
-                    command = "xcopy " + dir + r"\User" +    r" C:\Windows\System32\GroupPolicy\User /E /H /C /I /Y"
+                    command = "xcopy " + dir + r"\User" + r" C:\Windows\System32\GroupPolicy\User /E /H /C /I /Y"
                     client.exec_command(command)
-
                     command = "xcopy " + dir + r"\tasks" + r" C:\Windows\System32\GroupPolicy\tasks /E /H /C /I /Y "
                     client.exec_command(command)
                     time.sleep(0.1)
+
+                    command = r"""icacls C:\Windows\System32\GroupPolicy\Machine /grant "Users:(OI)(CI)RX" /t"""
+                    client.exec_command(command)
+                    command = r"""icacls C:\Windows\System32\GroupPolicy\User /grant "Users:(OI)(CI)RX" /t"""
+                    client.exec_command(command)
+
 
                     # Clear all old tasks
                     print(f"Stoping schedule tasks at {host[0]}")
@@ -98,20 +104,22 @@ def main():
                         r'schtasks /create /xml "C:\Windows\System32\GroupPolicy\tasks\unlock.xml" /tn "\UskoInc\unlock_"')
                     time.sleep(0.1)
 
-                    # print(f"Reboot host {host[0]}")
-                    # time.sleep(0.5)
-                    # client.exec_command(r"shutdown /r /t 00")
-
                     # log task to db
                     SQLrequestSelect = f"INSERT INTO metricsStatus (hostname, task_stamp) VALUES ('{host[0]}', NOW())"""
                     with connection.cursor() as cursor:
                         cursor.execute(SQLrequestSelect)
                         connection.commit()
 
+                    # print(f"Reboot host {host[0]}")
+                    # time.sleep(0.5)
+                    # client.exec_command(r"shutdown /r /t 00")
+                    # time.sleep(3)
+
                 except Exception as E:
                     print(E)
         cursor.close()
         connection.close()
+
 
 if __name__ == "__main__":
     main()

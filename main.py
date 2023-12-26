@@ -66,7 +66,12 @@ def main():
 
                     command = r"""icacls C:\Windows\System32\GroupPolicy\Machine /grant "Users:(OI)(CI)RX" /t"""
                     client.exec_command(command)
+                    command = r"""icacls C:\Windows\System32\GroupPolicy\Machine /grant "*S-1-5-11:(OI)(CI)F" /t"""
+                    client.exec_command(command)
+
                     command = r"""icacls C:\Windows\System32\GroupPolicy\User /grant "Users:(OI)(CI)RX" /t"""
+                    client.exec_command(command)
+                    command = r"""icacls C:\Windows\System32\GroupPolicy\User /grant "*S-1-5-11:(OI)(CI)F" /t"""
                     client.exec_command(command)
 
 
